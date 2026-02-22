@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.List;
 import java.util.Scanner;
 
+import LibraryProyect.services.LibroService;
 import LibraryProyect.entities.Libro;
 import LibraryProyect.entities.Reseña;
 import LibraryProyect.dtos.ReseñaRequestDTO;
@@ -19,11 +20,14 @@ public class LibraryProyectApplication implements CommandLineRunner {
 
     private final ReseñaService reseñaService;
     private final LibroRepository libroRepository;
+    private final LibroService libroService;
 
     public LibraryProyectApplication(ReseñaService reseñaService,
-                                     LibroRepository libroRepository) {
+                                     LibroRepository libroRepository,
+                                     LibroService libroService) {
         this.reseñaService = reseñaService;
         this.libroRepository = libroRepository;
+        this.libroService = libroService;
     }
 
     public static void main(String[] args) {
@@ -42,7 +46,9 @@ public class LibraryProyectApplication implements CommandLineRunner {
             System.out.println("2. Listar libros");
             System.out.println("3. Escribir reseña");
             System.out.println("4. Ver reseñas de un libro");
-            System.out.println("5. Salir");
+            System.out.println("5. Búsqueda básica (autor o título)");
+            System.out.println("6. Búsqueda avanzada (título, autor, ISBN)");
+            System.out.println("7. Salir");
             System.out.print("Seleccione una opción: ");
 
             opcion = Integer.parseInt(scanner.nextLine());
@@ -64,8 +70,16 @@ public class LibraryProyectApplication implements CommandLineRunner {
                 case 4:
                     verReseñas(scanner);
                     break;
-
+                
                 case 5:
+                    busquedaBasica(scanner);
+                    break;
+
+                case 6:
+                    busquedaAvanzada(scanner);
+                    break;
+
+                case 7:
                     System.out.println("Saliendo del sistema...");
                     break;
 
@@ -73,7 +87,7 @@ public class LibraryProyectApplication implements CommandLineRunner {
                     System.out.println("Opción inválida.");
             }
 
-        } while (opcion != 5);
+        } while (opcion != 7);
 
         scanner.close();
     }
@@ -98,6 +112,9 @@ public class LibraryProyectApplication implements CommandLineRunner {
         System.out.print("Descripción: ");
         libro.descripcion = scanner.nextLine();
 
+        System.out.print("ISBN: ");
+        libro.isbn = scanner.nextLine();
+
         libroRepository.save(libro);
 
         System.out.println("Libro creado correctamente.");
@@ -117,7 +134,8 @@ public class LibraryProyectApplication implements CommandLineRunner {
             System.out.println("ID: " + libro.id +
                                " | Título: " + libro.titulo +
                                " | Autor: " + libro.autor +
-                               " | Precio: $" + libro.precio);
+                               " | Precio: $" + libro.precio +
+                               " | ISBN: " + libro.isbn);
         }
     }
 
@@ -162,6 +180,49 @@ public class LibraryProyectApplication implements CommandLineRunner {
             System.out.println("Usuario: " + r.usuario.nombre);
             System.out.println("Comentario: " + r.contenido);
             System.out.println("-----------------------");
+        }
+    }
+
+    private void busquedaBasica(Scanner scanner) {
+
+        System.out.print("Ingrese palabra o frase: ");
+        String texto = scanner.nextLine();
+
+        List<Libro> resultados = libroService.busquedaBasica(texto);
+
+        mostrarResultadosBusqueda(resultados);
+    }
+
+    private void busquedaAvanzada(Scanner scanner) {
+
+        System.out.print("Título (opcional): ");
+        String titulo = scanner.nextLine();
+
+        System.out.print("Autor (opcional): ");
+        String autor = scanner.nextLine();
+
+        System.out.print("ISBN (opcional): ");
+        String isbn = scanner.nextLine();
+
+        List<Libro> resultados =
+                libroService.busquedaAvanzada(titulo, autor, isbn);
+
+        mostrarResultadosBusqueda(resultados);
+    }
+
+    private void mostrarResultadosBusqueda(List<Libro> libros) {
+
+    if (libros.isEmpty()) {
+        System.out.println("No se encontraron resultados.");
+        return;
+    }
+
+    System.out.println("\n=== RESULTADOS ===");
+        for (Libro l : libros) {
+            System.out.println("ID: " + l.id +
+                                " | Título: " + l.titulo +
+                                " | Autor: " + l.autor +
+                                " | ISBN: " + l.isbn);
         }
     }
 }

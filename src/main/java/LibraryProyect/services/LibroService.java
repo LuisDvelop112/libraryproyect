@@ -31,4 +31,20 @@ public class LibroService {
     public void eliminarLibro(Long id) {
         repositorioLibro.deleteById(id);
     }
+
+    public List<Libro> busquedaBasica(String texto) {
+        return repositorioLibro.findByTituloContainingIgnoreCaseOrAutorContainingIgnoreCase(texto, texto);
+    }
+
+    public List<Libro> busquedaAvanzada(String titulo, String autor, String isbn) {
+        return repositorioLibro.busquedaAvanzada(
+                titulo.isBlank() ? null : titulo,
+                autor.isBlank() ? null : autor,
+                isbn.isBlank() ? null : isbn
+        );
+    }
+
+    public void guardar(Libro libro) {
+        repositorioLibro.save(libro);
+    }
 }
