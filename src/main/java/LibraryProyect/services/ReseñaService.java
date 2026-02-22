@@ -10,18 +10,18 @@ import LibraryProyect.repositories.*;
 import LibraryProyect.dtos.*;
 
 @Service
-public class ServicioReseña {
+public class ReseñaService {
 
-    private final RepositorioReseña repositorioReseña;
-    private final RepositorioLibro repositorioLibro;
-    private final RepositorioUsuario repositorioUsuario;
+    private final ReseñaRepository reseñaRepository;
+    private final LibroRepository libroRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ServicioReseña(RepositorioReseña repositorioReseña,
-                          RepositorioLibro repositorioLibro,
-                          RepositorioUsuario repositorioUsuario) {
-        this.repositorioReseña = repositorioReseña;
-        this.repositorioLibro = repositorioLibro;
-        this.repositorioUsuario = repositorioUsuario;
+    public ReseñaService(ReseñaRepository reseñaRepository,
+                         LibroRepository libroRepository,
+                         UsuarioRepository usuarioRepository) {
+        this.reseñaRepository = reseñaRepository;
+        this.libroRepository = libroRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public ReseñaResponseDTO previsualizarReseña(ReseñaRequestDTO dto) {
@@ -35,7 +35,7 @@ public class ServicioReseña {
 
     public Reseña guardarReseña(Long libroId, ReseñaRequestDTO dto) {
 
-        Libro libro = repositorioLibro.findById(libroId)
+        Libro libro = libroRepository.findById(libroId)
                 .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
 
         if (dto.contenido == null || dto.contenido.isBlank()) {
@@ -43,12 +43,12 @@ public class ServicioReseña {
         }
 
         // 🔹 Buscar usuario por correo
-        Usuario usuario = repositorioUsuario.findByCorreo(dto.correoUsuario)
+        Usuario usuario = usuarioRepository.findByCorreo(dto.correoUsuario)
                 .orElseGet(() -> {
                     Usuario nuevoUsuario = new Usuario();
                     nuevoUsuario.nombre = dto.nombreUsuario;
                     nuevoUsuario.correo = dto.correoUsuario;
-                    return repositorioUsuario.save(nuevoUsuario);
+                    return usuarioRepository.save(nuevoUsuario);
                 });
 
         Reseña reseña = new Reseña();
@@ -56,16 +56,16 @@ public class ServicioReseña {
         reseña.libro = libro;
         reseña.usuario = usuario;
 
-        return repositorioReseña.save(reseña);
+        return reseñaRepository.save(reseña);
     }
     public List<Reseña> obtenerReseñasPorLibro(Long libroId) {
     
     // Verifica que el libro existe (opcional, pero buena práctica)
-    if (!repositorioLibro.existsById(libroId)) {
+    if (!libroRepository.existsById(libroId)) {
         throw new RuntimeException("Libro no encontrado");
     }
     
     // Busca las reseñas directamente en el repositorio de reseñas
-    return repositorioReseña.findByLibroId(libroId);
+    return reseñaRepository.findByLibroId(libroId);
 }
 }

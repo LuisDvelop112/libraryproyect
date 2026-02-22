@@ -1,10 +1,12 @@
 package LibraryProyect.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
+@Table(name="libros")
 public class Libro {
 
     @Id
@@ -20,6 +22,7 @@ public class Libro {
     @Column(length = 2000)
     public String descripcion;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL)
-    public List<Reseña> reseñas;
+    private List<Reseña> reseñas;
 }

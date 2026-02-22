@@ -6,8 +6,8 @@ import LibraryProyect.entities.Reseña;
 import java.util.List;
 
 @Repository
-public interface RepositorioReseña extends JpaRepository<Reseña, Long> {
-    
-    // Nuevo método para buscar reseñas por ID de libro
+public interface ReseñaRepository extends JpaRepository<Reseña, Long> {
+
     List<Reseña> findByLibroId(Long libroId);
+
 }

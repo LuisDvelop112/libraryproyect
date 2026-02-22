@@ -11,19 +11,19 @@ import java.util.Scanner;
 import LibraryProyect.entities.Libro;
 import LibraryProyect.entities.Reseña;
 import LibraryProyect.dtos.ReseñaRequestDTO;
-import LibraryProyect.repositories.RepositorioLibro;
-import LibraryProyect.services.ServicioReseña;
+import LibraryProyect.repositories.LibroRepository;
+import LibraryProyect.services.ReseñaService;
 
 @SpringBootApplication
 public class LibraryProyectApplication implements CommandLineRunner {
 
-    private final ServicioReseña servicioReseña;
-    private final RepositorioLibro repositorioLibro;
+    private final ReseñaService reseñaService;
+    private final LibroRepository libroRepository;
 
-    public LibraryProyectApplication(ServicioReseña servicioReseña,
-                                     RepositorioLibro repositorioLibro) {
-        this.servicioReseña = servicioReseña;
-        this.repositorioLibro = repositorioLibro;
+    public LibraryProyectApplication(ReseñaService reseñaService,
+                                     LibroRepository libroRepository) {
+        this.reseñaService = reseñaService;
+        this.libroRepository = libroRepository;
     }
 
     public static void main(String[] args) {
@@ -98,14 +98,14 @@ public class LibraryProyectApplication implements CommandLineRunner {
         System.out.print("Descripción: ");
         libro.descripcion = scanner.nextLine();
 
-        repositorioLibro.save(libro);
+        libroRepository.save(libro);
 
         System.out.println("Libro creado correctamente.");
     }
 
     private void listarLibros() {
 
-        List<Libro> libros = repositorioLibro.findAll();
+        List<Libro> libros = libroRepository.findAll();
 
         if (libros.isEmpty()) {
             System.out.println("No hay libros registrados.");
@@ -140,7 +140,7 @@ public class LibraryProyectApplication implements CommandLineRunner {
         dto.correoUsuario = correo;
         dto.contenido = contenido;
 
-        servicioReseña.guardarReseña(libroId, dto);
+        reseñaService.guardarReseña(libroId, dto);
 
         System.out.println("Reseña guardada correctamente.");
     }
@@ -150,7 +150,7 @@ public class LibraryProyectApplication implements CommandLineRunner {
         System.out.print("ID del libro: ");
         Long libroId = Long.parseLong(scanner.nextLine());
 
-        List<Reseña> reseñas = servicioReseña.obtenerReseñasPorLibro(libroId);
+        List<Reseña> reseñas = reseñaService.obtenerReseñasPorLibro(libroId);
 
         if (reseñas.isEmpty()) {
             System.out.println("Este libro no tiene reseñas.");

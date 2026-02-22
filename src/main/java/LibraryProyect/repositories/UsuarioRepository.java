@@ -7,7 +7,7 @@ import LibraryProyect.entities.Usuario;
 import java.util.Optional;
 
 @Repository
-public interface RepositorioUsuario extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByCorreo(String correo);
 }

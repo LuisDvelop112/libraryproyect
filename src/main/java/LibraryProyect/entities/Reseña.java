@@ -1,8 +1,10 @@
 package LibraryProyect.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name="reseñas")
 public class Reseña {
 
     @Id
@@ -12,6 +14,7 @@ public class Reseña {
     @Column(length = 2000)
     public String contenido;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "libro_id")
     public Libro libro;
@@ -19,5 +22,6 @@ public class Reseña {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     public Usuario usuario;
+
 }
 
