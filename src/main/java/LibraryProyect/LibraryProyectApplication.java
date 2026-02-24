@@ -1,5 +1,5 @@
 
-package LibraryProyect;  
+package LibraryProyect;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,6 +14,9 @@ import LibraryProyect.entities.Reseña;
 import LibraryProyect.dtos.ReseñaRequestDTO;
 import LibraryProyect.repositories.LibroRepository;
 import LibraryProyect.services.ReseñaService;
+import LibraryProyect.entities.Calificacion;           // <-- NUEVO
+import LibraryProyect.dtos.CalificacionRequestDTO;     // <-- NUEVO
+import LibraryProyect.services.CalificacionService;
 
 @SpringBootApplication
 public class LibraryProyectApplication implements CommandLineRunner {
@@ -21,13 +24,16 @@ public class LibraryProyectApplication implements CommandLineRunner {
     private final ReseñaService reseñaService;
     private final LibroRepository libroRepository;
     private final LibroService libroService;
+    private final CalificacionService calificacionService;
 
     public LibraryProyectApplication(ReseñaService reseñaService,
                                      LibroRepository libroRepository,
-                                     LibroService libroService) {
+                                     LibroService libroService,
+                                     CalificacionService calificacionService) {
         this.reseñaService = reseñaService;
         this.libroRepository = libroRepository;
         this.libroService = libroService;
+        this.calificacionService = calificacionService;
     }
 
     public static void main(String[] args) {
@@ -48,7 +54,10 @@ public class LibraryProyectApplication implements CommandLineRunner {
             System.out.println("4. Ver reseñas de un libro");
             System.out.println("5. Búsqueda básica (autor o título)");
             System.out.println("6. Búsqueda avanzada (título, autor, ISBN)");
-            System.out.println("7. Salir");
+            System.out.println("7. Calificar libro (1-5)");
+            System.out.println("8. Ver calificaciones de un libro");
+            System.out.println("9. Ver promedio de calificaciones");
+            System.out.println("10. Salir");
             System.out.print("Seleccione una opción: ");
 
             opcion = Integer.parseInt(scanner.nextLine());
@@ -70,7 +79,7 @@ public class LibraryProyectApplication implements CommandLineRunner {
                 case 4:
                     verReseñas(scanner);
                     break;
-                
+
                 case 5:
                     busquedaBasica(scanner);
                     break;
@@ -79,15 +88,30 @@ public class LibraryProyectApplication implements CommandLineRunner {
                     busquedaAvanzada(scanner);
                     break;
 
+
                 case 7:
+                    calificarLibro(scanner);
+                    break;
+
+                case 8:
+                    verCalificaciones(scanner);
+                    break;
+
+                case 9:
+                    verPromedioCalificaciones(scanner);
+                    break;
+
+                case 10:
                     System.out.println("Saliendo del sistema...");
                     break;
+
+
 
                 default:
                     System.out.println("Opción inválida.");
             }
 
-        } while (opcion != 7);
+        } while (opcion != 10);
 
         scanner.close();
     }
@@ -223,6 +247,71 @@ public class LibraryProyectApplication implements CommandLineRunner {
                                 " | Título: " + l.titulo +
                                 " | Autor: " + l.autor +
                                 " | ISBN: " + l.isbn);
+        }
+    }
+
+    private void calificarLibro(Scanner scanner) {
+        System.out.print("ID del libro: ");
+        Long libroId = Long.parseLong(scanner.nextLine());
+
+        System.out.print("Nombre: ");
+        String nombre = scanner.nextLine();
+
+        System.out.print("Correo: ");
+        String correo = scanner.nextLine();
+
+        System.out.print("Calificación (1-5): ");
+        Integer puntuacion = Integer.parseInt(scanner.nextLine());
+
+        CalificacionRequestDTO dto = new CalificacionRequestDTO();
+        dto.nombreUsuario = nombre;
+        dto.correoUsuario = correo;
+        dto.puntuacion = puntuacion;
+
+        try {
+            Calificacion calificacion = calificacionService.guardarCalificacion(libroId, dto);
+            System.out.println("Calificación guardada: " + calificacion.puntuacion + " estrellas");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void verCalificaciones(Scanner scanner) {
+        System.out.print("ID del libro: ");
+        Long libroId = Long.parseLong(scanner.nextLine());
+
+        try {
+            List<Calificacion> calificaciones = calificacionService.obtenerCalificacionesPorLibro(libroId);
+
+            if (calificaciones.isEmpty()) {
+                System.out.println("Este libro no tiene calificaciones.");
+                return;
+            }
+
+            System.out.println("\n=== CALIFICACIONES ===");
+            for (Calificacion c : calificaciones) {
+                System.out.println("Usuario: " + c.usuario.nombre);
+                System.out.println("Puntuación: " + c.puntuacion + "/5");
+                System.out.println("-----------------------");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void verPromedioCalificaciones(Scanner scanner) {
+        System.out.print("ID del libro: ");
+        Long libroId = Long.parseLong(scanner.nextLine());
+
+        try {
+            Double promedio = calificacionService.obtenerPromedioCalificaciones(libroId);
+            List<Calificacion> calificaciones = calificacionService.obtenerCalificacionesPorLibro(libroId);
+
+            System.out.println("\n=== ESTADÍSTICAS ===");
+            System.out.println("Promedio: " + promedio + "/5");
+            System.out.println("Total calificaciones: " + calificaciones.size());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
