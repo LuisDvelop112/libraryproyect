@@ -86,4 +86,5 @@ public class CalificacionService {
         double promedio = suma / calificaciones.size();
         return Math.round(promedio * 10) / 10.0;
     }
+
 }

@@ -103,8 +103,8 @@ public class LibraryProyectApplication implements CommandLineRunner {
 
                 case 10:
                     System.out.println("Saliendo del sistema...");
+                    System.exit(0);
                     break;
-
 
 
                 default:
@@ -314,4 +314,5 @@ public class LibraryProyectApplication implements CommandLineRunner {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
 }
